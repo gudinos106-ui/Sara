@@ -1,0 +1,12 @@
+streamlit
+pandas
+requests
+python-dotenv
+pdfplumber
+pydantic
+openpyxl
+plotly 
+os
+base64
+datetime 
+dotenv
