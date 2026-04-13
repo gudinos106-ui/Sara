@@ -12,6 +12,13 @@ from pydantic import BaseModel, Field, ValidationError
 # Importamos las herramientas
 from utils import enviar_telegram, limpiar_monto, categorizar
 
+
+st.set_page_config(
+    page_title="MoneyTrack Gold",
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
+
 def generar_pdf_reporte(nombre, total, saldo, resumen_gastos, df_final):
     pdf = FPDF()
     pdf.add_page()
@@ -34,7 +41,7 @@ def generar_pdf_reporte(nombre, total, saldo, resumen_gastos, df_final):
     pdf.cell(95, 10, text=f"Total Gastado: CRC {total:,.2f}", border='B')
     pdf.cell(95, 10, text=f"Saldo: CRC {saldo:,.2f}", border='1', align='R', new_x="LMARGIN", new_y="NEXT")
     
-    # Resumen Categorías AQUIIIIII PONE B Y QUITA ALIGN
+    # Resumen Categorías 
     pdf.ln(5)
     pdf.set_fill_color(255, 215, 0) # Dorado
     pdf.cell(190, 10, text=limpiar("RESUMEN POR CATEGORÍA"), border='B', fill=True, new_x="LMARGIN", new_y="NEXT")
@@ -87,6 +94,33 @@ def generar_pdf_reporte(nombre, total, saldo, resumen_gastos, df_final):
     pdf.cell(0, 10, text=limpiar("Este informe es un análisis automatizado generado por MoneyTrack Gold para uso personal.Programadora Sara Gudino"), align='C')
     
     return bytes(pdf.output())
+
+# --- SISTEMA DE SEGURIDAD ---
+def login():
+    if "autenticado" not in st.session_state:
+        st.session_state.autenticado = False
+
+    if not st.session_state.autenticado:
+        st.title("🔐 Acceso a MoneyTrack Gold")
+        # Tu nombre de usuario y una clave secreta (puedes cambiarlas)
+        usuario = st.text_input("Usuario")
+        clave = st.text_input("Contraseña", type="password")
+        
+        if st.button("Ingresar"):
+            if usuario == "Sara" and clave == "2026": # ¡Tu clave personal!
+                st.session_state.autenticado = True
+                st.success("¡Bienvenida, Sara! Accediendo al sistema...")
+                st.rerun()
+            else:
+                st.error("Usuario o contraseña incorrectos")
+        return False
+    return True
+
+# 
+if login():
+    # AQUÍ VA TODO EL RESTO DE TU CÓDIGO (st.title, st.sidebar, etc.)
+    st.sidebar.write(f"Conectada como: Sara Gudiño")
+    st.title("MoneyTrack Gold")
 
 def generar_pdf_reclamo(df_dups):
     pdf = FPDF()
@@ -174,8 +208,23 @@ def set_background(png_file):
             box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
             border: 1px solid #FFD700;
         }}
+        
         [data-testid="stMetricLabel"] {{ color: #2E4053 !important; }}
+
+        
+        /* ... AQUÍ EL TRUCO PARA LAS 3 COLUMNAS EN CELULAR - ... */
+        [data-testid="column"] {{
+            width: 33% !important;
+            flex: 1 1 33% !important;
+            min-width: 33% !important;
+        }}
+
+        [data-testid="stMetricValue"] {{
+            font-size: 1.4rem !important;
+        }}
+        
         </style>
+        
         ''', unsafe_allow_html=True)
     except:
         pass
